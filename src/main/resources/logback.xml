@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <withJansi>true</withJansi>
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp>
+                    <fieldName>Timestamp</fieldName>
+                </timestamp>
+                <logLevel>
+                    <fieldName>SeverityText</fieldName>
+                </logLevel>
+                <mdc>
+                    <includeMdcKeyName>span_id</includeMdcKeyName>
+                    <includeMdcKeyName>trace_id</includeMdcKeyName>
+                    <includeMdcKeyName>trace_flags</includeMdcKeyName>
+                    <mdcKeyFieldName>span_id=SpanId</mdcKeyFieldName>
+                    <mdcKeyFieldName>trace_id=TraceId</mdcKeyFieldName>
+                    <mdcKeyFieldName>trace_flags=Trace_Flags</mdcKeyFieldName>
+                </mdc>
+                <pattern>
+                    <omitEmptyFields>true</omitEmptyFields>
+                    <pattern>
+                        {
+                            "CorrelationId": "%mdc{trace_id}",
+                            "Resource": {
+                                "application": "demo",
+                                "logger": "%logger",
+                                "version":"${VERSION}",
+                                "environment":"${ENVIRONMENT}",
+                            }
+                        }
+                    </pattern>
+                </pattern>
+                <nestedField>
+                    <fieldName>Body</fieldName>
+                    <providers>
+                        <message/>
+                        <threadName>
+                            <fieldName>thread</fieldName>
+                        </threadName>
+                        <arguments/>
+                        <stackTrace>
+                            <fieldName>stackTrace</fieldName>
+                        </stackTrace>
+                        <stackHash/>
+                    </providers>
+                </nestedField>
+            </providers>
+        </encoder>
+    </appender>
+
+    <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.v1_0.OpenTelemetryAppender">
+        <appender-ref ref="STDOUT" />
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="OTEL" />
+    </root>
+
+</configuration>

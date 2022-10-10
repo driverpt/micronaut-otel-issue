@@ -1,0 +1,8 @@
+micronaut:
+  application:
+    name: demo
+
+otel:
+  traces:
+    exporter: otlp
+  propagators: tracecontext, baggage, xray
